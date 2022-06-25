@@ -1,96 +1,118 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Models\Friends;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class CobaController extends Controller
 {
-    /*
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
-            return 'test berhasil';
+        $friends = Friends::orderBy('id','desc')->paginate(3);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Daftar Nama Teman',
+            'data' => $friends
+        ], 200);
     }
 
-    public function urutan($ke)
-    {
-        $friends = Friends::paginate(3);
-            return view ('friend', compact('friends'));
-    }
-    public function coba($ke)
-    {
-            return view ('coba', ['ke' => $ke]);
-    }
-*/
-
-
-    public function index ()
-    {
-        $friends = Friends::orderBy('id', 'desc')->paginate(3);
-        return view ('friends.index', compact('friends'));
-    }
-
-    public function create ()
-    {
-        return view ('friends.create');
-    }
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
-        // Validate the request...
-
         $request->validate([
-            'nama' => 'required|unique:friends|max:255',
-            'no_telp' => 'required|numeric',
-            'alamat' => 'required',
+            'nama' => 'required|max:255|',
+            'no_tlp' => 'required|numeric',
+            'alamat' => 'required'
         ]);
- 
+
         $friends = new Friends;
  
         $friends->nama = $request->nama;
-        $friends->no_telp = $request->no_telp;
+        $friends->no_tlp = $request->no_tlp;
         $friends->alamat = $request->alamat;
- 
         $friends->save();
 
-        return redirect('/');
+        if($friends) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Teman berhasil di tambahkan',
+                'data' => $friends
+            ], 200);
+        }else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Teman gagal di tambahkan',
+                'data' => $friends
+            ], 409);
+        }
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function show($id)
     {
+        $friends = Friends::where('id',$id)->first();
 
-        $friends = friends::where('id', $id)->first();
-        return view('friends.show', ['friend'=> $friends]);
-    }
-    public function edit($id)
-    {
-        $friends = friends::where('id', $id)->first();
-        return view('friends.edit', ['friend'=> $friends]);
-    }
+        return response()->json([
+            'success' => true,
+            'message' => 'Detail teman',
+            'data' => $friends
+        ],200);
+    } 
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, $id)
     {
-
-        $request->validate([
-            'nama' => 'required|unique:friends|max:255',
-            'no_telp' => 'required|numeric',
-            'alamat' => 'required',
+        $friends = Friends::find($id)
+        ->update([
+        'nama'=>$request->nama,
+        'no_tlp' =>$request->no_tlp,
+        'alamat' => $request->alamat
         ]);
- 
-        friends::find($id)->update([
-            'nama' => $request->nama,
-            'no_telp' => $request->no_telp,
-            'alamat' => $request->alamat
-        ]);
-
-        return redirect('/');
-
+        return response()->json([
+            'success' => true,
+            'message' => 'Data teman berhasil di rubah',
+            'data' => $friends
+        ],200);
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function destroy($id)
     {
-        friends::find($id)->delete();
-        return redirect('/');
+        $friend = Friends::find($id)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data teman berhasil di hapus',
+            'data' => $friend
+        ],200);
     }
-    
 }

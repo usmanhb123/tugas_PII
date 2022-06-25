@@ -21,9 +21,8 @@ use App\Http\Controllers\Api\CobaController;
 // });
 
 // Route Otomatis Berada di localhost:8000/api
-Route::get('', [CobaController::class, 'index']);
-Route::resource('friends', CobaController::class);
-Route::resource('groups', GroupsController::class);
+Route::get('', [App\Http\Controllers\Api\CobaController::class, 'index']);
+Route::resource('friends', App\Http\Controllers\Api\CobaController::class);
 
 
 // Route::resources([
